@@ -22,7 +22,6 @@ var testPayload = []uint8{0x1, 0x0, 0x0, 0x0,
 	0x0, 0x0, 0x0, 0x0, 0x0,
 	0x0, 0x0, 0x0}
 
-
 //This test requires root. You've been warned.
 func TestDial(t *testing.T) {
 	cn, err := DialPCN()
@@ -41,7 +40,6 @@ func TestDial(t *testing.T) {
 
 	cn.ClosePCN()
 }
-
 
 func TestParseCN(t *testing.T) {
 

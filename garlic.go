@@ -1,4 +1,4 @@
-//package garlic is a simple proc connector interface for golang.
+//Package garlic is a simple proc connector interface for golang.
 package garlic
 
 /*
@@ -43,7 +43,6 @@ const (
 type CnConn struct {
 	*netlink.Conn
 }
-
 
 //Various message structs from connector.h
 
@@ -156,7 +155,7 @@ func isAck(data []byte) bool {
 	return false
 }
 
-//Close closes the netlink  connection
+//ClosePCN closes the netlink  connection
 func (c CnConn) ClosePCN() error {
 	return c.Close()
 }
