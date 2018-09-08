@@ -15,9 +15,9 @@ workflows:
             - clean-code
 
 jobs:
-  environment:
-    - GO11MODULES: ON
   clean-code:
+    environment:
+      - GO11MODULES: ON
     docker:
       - image: circleci/golang:1.11
     working_directory: ~/github.com/fearful-symmetry/garlic
