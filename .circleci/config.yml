@@ -15,6 +15,8 @@ workflows:
             - clean-code
 
 jobs:
+  environment:
+    - GO11MODULES: ON
   clean-code:
     docker:
       - image: circleci/golang:1.11
@@ -31,10 +33,10 @@ jobs:
             golint ./
       - run:
           name: gofmt
-          command: test -z $(gofmt -s -l \*.go fswatch nagios)
+          command: test -z $(gofmt -s -l \*.go)
   test:
     environment:
-      - GO111MODULE: on
+      - GO11MODULES: ON
     docker:
       - image: circleci/golang:1.11
     working_directory: ~/github.com/fearful-symmetry/garlic
@@ -48,7 +50,7 @@ jobs:
           command: go test -cover
   race:
     environment:
-      - GO111MODULE: on
+      - GO11MODULES: ON
     docker:
       - image: circleci/golang:1.11
     working_directory: ~/github.com/fearful-symmetry/garlic
@@ -59,7 +61,7 @@ jobs:
           command: go test -race
   compile:
     environment:
-      - GO111MODULE: on
+      - GO11MODULES: ON
     docker:
       - image: circleci/golang:1.11
     working_directory: ~/github.com/fearful-symmetry/garlic
