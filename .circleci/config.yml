@@ -18,7 +18,7 @@ jobs:
   clean-code:
     docker:
       - image: circleci/golang:1.11
-    working_directory: /go/src/github.com/fearful-symmetry/garlic
+    working_directory: ~/github.com/fearful-symmetry/garlic
     steps:
       - checkout
       - run:
@@ -33,9 +33,11 @@ jobs:
           name: gofmt
           command: test -z $(gofmt -s -l \*.go fswatch nagios)
   test:
+    environment:
+      - GO111MODULE: on
     docker:
       - image: circleci/golang:1.11
-    working_directory: /go/src/github.com/fearful-symmetry/garlic
+    working_directory: ~/github.com/fearful-symmetry/garlic
     steps:
       - checkout
       - run:
@@ -45,21 +47,25 @@ jobs:
           name: Test coverage
           command: go test -cover
   race:
+    environment:
+      - GO111MODULE: on
     docker:
       - image: circleci/golang:1.11
-    working_directory: /go/src/github.com/fearful-symmetry/garlic
+    working_directory: ~/github.com/fearful-symmetry/garlic
     steps:
       - checkout
       - run:
           name: Race detector
           command: go test -race
   compile:
+    environment:
+      - GO111MODULE: on
     docker:
       - image: circleci/golang:1.11
-    working_directory: go/src/github.com/fearful-symmetry/garlic
+    working_directory: ~/github.com/fearful-symmetry/garlic
     steps:
       - checkout
       - run:
-          name: build sqlios
+          name: build garlic
           command: |
             go build -a
