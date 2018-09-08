@@ -22,28 +22,34 @@ var testPayload = []uint8{0x1, 0x0, 0x0, 0x0,
 	0x0, 0x0, 0x0, 0x0, 0x0,
 	0x0, 0x0, 0x0}
 
-//This test requires root. You've been warned.
-func TestDial(t *testing.T) {
-	cn, err := DialPCN()
-	if err != nil {
-		t.Fatalf("%s", err)
-	}
+// //This test requires root. You've been warned.
+// func TestDial(t *testing.T) {
+// 	cn, err := DialPCN()
+// 	if err != nil {
+// 		t.Fatalf("%s", err)
+// 	}
 
-	_, err = cn.ReadPCN()
-	//fmt.Printf("%#v\n", cn.Conn)
-	if err != nil {
-		t.Errorf("Test fail: %s", err)
-	}
-	//fmt.Printf("%#v\n", data)
+// 	_, err = cn.ReadPCN()
+// 	//fmt.Printf("%#v\n", cn.Conn)
+// 	if err != nil {
+// 		t.Errorf("Test fail: %s", err)
+// 	}
+// 	//fmt.Printf("%#v\n", data)
 
-	//fmt.Printf("%#v\n", data)
+// 	//fmt.Printf("%#v\n", data)
 
-	cn.ClosePCN()
-}
+// 	cn.ClosePCN()
+// }
 
 func TestParseCN(t *testing.T) {
 
-	validOut := ProcEvent{What: 0x80000000, CPU: 0xb, TimestampNs: 0x272aaff601311, EventData: Exit{ProcessPid: 0x6999, ProcessTgid: 0x2ddd, ExitCode: 0x0, ExitSignal: 0xffffffff}}
+	validOut := ProcEvent{What: 0x80000000,
+		CPU:         0xb,
+		TimestampNs: 0x272aaff601311,
+		EventData: Exit{ProcessPid: 0x6999,
+			ProcessTgid: 0x2ddd,
+			ExitCode:    0x0,
+			ExitSignal:  0xffffffff}}
 
 	ev, err := parseCn(testPayload)
 	if err != nil {

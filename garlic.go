@@ -6,37 +6,11 @@ GArLIC: GolAng LInux Connector: Linux Processor Connector library
 */
 
 import (
-	"bytes"
 	"encoding/binary"
 	"fmt"
-	"github.com/mdlayher/netlink"
-	"io"
 	"syscall"
-)
 
-//from cn_proc.h
-const (
-
-	//ProcEventNone is only used for ACK events
-	ProcEventNone = 0x00000000
-	//ProcEventFork is a fork event
-	ProcEventFork = 0x00000001
-	//ProcEventExec is a exec() event
-	ProcEventExec = 0x00000002
-	//ProcEventUID is a user ID change
-	ProcEventUID = 0x00000004
-	//ProcEventGID is a group ID change
-	ProcEventGID = 0x00000040
-	//ProcEventSID is a session ID change
-	ProcEventSID = 0x00000080
-	//ProcEventSID is a process trace event
-	ProcEventPtrace = 0x00000100
-	//ProcEventComm is a comm(and) value change. Any value over 16 bytes will be truncated
-	ProcEventComm = 0x00000200
-	//ProcEventCoredump is a core dump event
-	ProcEventCoredump = 0x40000000
-	//ProcEventExit is an exit() event
-	ProcEventExit = 0x80000000
+	"github.com/mdlayher/netlink"
 )
 
 //CnConn contains the connection to the proc connector socket
@@ -44,94 +18,56 @@ type CnConn struct {
 	*netlink.Conn
 }
 
-//Various message structs from connector.h
-
-type cbID struct {
-	Idx uint32
-	Val uint32
-}
-
-type cnMsg struct {
-	ID    cbID
-	Seq   uint32
-	Ack   uint32
-	Len   uint16
-	Flags uint16
-}
-
-//This is just an internal  header that allows us to easily cast the raw binary data
-type procEventHdr struct {
-	What      uint32
-	CPU       uint32
-	Timestamp uint64
-}
-
 //parse and handle the event Interface
-func getEvent(hdr procEventHdr, buf io.Reader) (EventData, error) {
+func getEvent(hdr procEventHdr, data []byte) (EventData, error) {
 	switch hdr.What {
 	case ProcEventNone:
 		//We should only see this when we're getting an ACK back from the kernel
 		return nil, fmt.Errorf("Got ProcEventNone")
 	case ProcEventFork:
 		ev := Fork{}
-		err := binary.Read(buf, binary.LittleEndian, &ev)
-		return ev, err
+		ev.ParentPid, ev.ParentTgid, ev.ChildPid, ev.ChildTgid = return4Uint32(data)
+		return ev, nil
 	case ProcEventExec:
 		ev := Exec{}
-		err := binary.Read(buf, binary.LittleEndian, &ev)
-		return ev, err
+		ev.ProcessPid, ev.ProcessTgid = return2Uint32(data)
+		return ev, nil
 	case ProcEventUID, ProcEventGID:
 		ev := ID{}
-		err := binary.Read(buf, binary.LittleEndian, &ev)
-		return ev, err
+		ev.ProcessPid, ev.ProcessTgid, ev.RealID, ev.EffectiveID = return4Uint32(data)
+		return ev, nil
 	case ProcEventSID:
 		ev := Sid{}
-		err := binary.Read(buf, binary.LittleEndian, &ev)
-		return ev, err
+		ev.ProcessPid, ev.ProcessTgid = return2Uint32(data)
+		return ev, nil
 	case ProcEventPtrace:
 		ev := Ptrace{}
-		err := binary.Read(buf, binary.LittleEndian, &ev)
-		return ev, err
+		ev.ProcessPid, ev.ProcessTgid, ev.TracerPid, ev.TracerTgid = return4Uint32(data)
+		return ev, nil
 	case ProcEventComm:
 		ev := Comm{}
-		err := binary.Read(buf, binary.LittleEndian, &ev)
-		return ev, err
+		ev.ProcessPid, ev.ProcessTgid = return2Uint32(data)
+		copy(ev.Comm[:], data[8:])
+		return ev, nil
 	case ProcEventCoredump:
 		ev := Coredump{}
-		err := binary.Read(buf, binary.LittleEndian, &ev)
-		return ev, err
+		ev.ProcessPid, ev.ProcessTgid = return2Uint32(data)
+		return ev, nil
 	case ProcEventExit:
 		ev := Exit{}
-		err := binary.Read(buf, binary.LittleEndian, &ev)
-		return ev, err
+		ev.ProcessPid, ev.ProcessTgid, ev.ExitCode, ev.ExitSignal = return4Uint32(data)
+		return ev, nil
 	}
 
 	return Exit{}, fmt.Errorf("Unknown What: %x", hdr.What)
 }
 
-func getHeaders(buf io.Reader) (cnMsg, procEventHdr, error) {
-	msg := cnMsg{}
-	hdr := procEventHdr{}
-
-	err := binary.Read(buf, binary.LittleEndian, &msg)
-	if err != nil {
-		return msg, hdr, err
-	}
-
-	err = binary.Read(buf, binary.LittleEndian, &hdr)
-
-	return msg, hdr, err
-}
-
 func parseCn(data []byte) (ProcEvent, error) {
 
-	buf := bytes.NewBuffer(data)
-	_, hdr, err := getHeaders(buf)
-	if err != nil {
-		return ProcEvent{}, err
-	}
+	hdr := unmarshalProcEventHdr(data[cnMsgLen:])
+	//buf := bytes.NewBuffer(data[cnMsgLen+procEventHdrLen:])
 
-	ev, err := getEvent(hdr, buf)
+	ev, err := getEvent(hdr, data[cnMsgLen+procEventHdrLen:])
 	if err != nil {
 		return ProcEvent{}, err
 	}
@@ -142,11 +78,9 @@ func parseCn(data []byte) (ProcEvent, error) {
 //check to see if the packet is a valid ACK
 func isAck(data []byte) bool {
 
-	buf := bytes.NewBuffer(data)
-	msg, hdr, err := getHeaders(buf)
-	if err != nil {
-		return false
-	}
+	//buf := bytes.NewBuffer(data)
+	msg := unmarshalCnMsg(data)
+	hdr := unmarshalProcEventHdr(data[binary.Size(cnMsg{}):])
 
 	if msg.Ack == 0x1 && hdr.What == ProcEventNone {
 		return true
@@ -193,32 +127,21 @@ func DialPCN() (CnConn, error) {
 	//fmt.Println("Finished dial.")
 
 	if err != nil {
-		return CnConn{}, fmt.Errorf("Error in netlink.DialPCN: %s", err)
+		return CnConn{}, fmt.Errorf("Error in netlink: %s", err)
 	}
 
 	//setup process connector hdr
-	cbHdr := cbID{Idx: 0x1, Val: 0x1}
-	var connBody uint32 = 0x1
+	cbHdr := cbID{Idx: CnIdxProc, Val: CnValProc}
+	var connBody uint32 = ProcCnMcastListen
 	cnHdr := cnMsg{ID: cbHdr, Len: uint16(binary.Size(connBody))}
 
-	buf := bytes.NewBuffer(make([]byte, 0, binary.Size(cnHdr)+binary.Size(connBody)))
-	err = binary.Write(buf, binary.LittleEndian, cnHdr)
-
-	if err != nil {
-		return CnConn{}, err
-	}
-
-	err = binary.Write(buf, binary.LittleEndian, connBody)
-
-	if err != nil {
-		return CnConn{}, err
-	}
+	binHdr := cnHdr.MarshalBinaryAndBody(connBody)
 
 	reqMsg := netlink.Message{
 		Header: netlink.Header{
 			Type: syscall.NLMSG_DONE,
 		},
-		Data: buf.Bytes(),
+		Data: binHdr,
 	}
 
 	//Send request message
