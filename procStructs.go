@@ -76,7 +76,7 @@ func unmarshalCnMsg(data []byte) cnMsg {
 
 //This is just an internal  header that allows us to easily cast the raw binary data
 type procEventHdr struct {
-	What      uint32
+	What      EventType
 	CPU       uint32
 	Timestamp uint64
 }
@@ -87,41 +87,44 @@ var procEventHdrLen = binary.Size(procEventHdr{})
 func unmarshalProcEventHdr(data []byte) procEventHdr {
 	hdr := procEventHdr{}
 
-	hdr.What = nlenc.Uint32(data[0:4])
+	hdr.What = EventType(nlenc.Uint32(data[0:4]))
 	hdr.CPU = nlenc.Uint32(data[4:8])
 	hdr.Timestamp = nlenc.Uint64(data[8:16])
 
 	return hdr
 }
 
+//EventType represents the possible event types we can get back from the connector
+type EventType uint32
+
 //from cn_proc.h
 const (
 
 	//ProcEventNone is only used for ACK events
-	ProcEventNone = 0x00000000
+	ProcEventNone EventType = 0x00000000
 	//ProcEventFork is a fork event
-	ProcEventFork = 0x00000001
+	ProcEventFork EventType = 0x00000001
 	//ProcEventExec is a exec() event
-	ProcEventExec = 0x00000002
+	ProcEventExec EventType = 0x00000002
 	//ProcEventUID is a user ID change
-	ProcEventUID = 0x00000004
+	ProcEventUID EventType = 0x00000004
 	//ProcEventGID is a group ID change
-	ProcEventGID = 0x00000040
+	ProcEventGID EventType = 0x00000040
 	//ProcEventSID is a session ID change
-	ProcEventSID = 0x00000080
+	ProcEventSID EventType = 0x00000080
 	//ProcEventSID is a process trace event
-	ProcEventPtrace = 0x00000100
+	ProcEventPtrace EventType = 0x00000100
 	//ProcEventComm is a comm(and) value change. Any value over 16 bytes will be truncated
-	ProcEventComm = 0x00000200
+	ProcEventComm EventType = 0x00000200
 	//ProcEventCoredump is a core dump event
-	ProcEventCoredump = 0x40000000
+	ProcEventCoredump EventType = 0x40000000
 	//ProcEventExit is an exit() event
-	ProcEventExit = 0x80000000
+	ProcEventExit EventType = 0x80000000
 )
 
 //ProcEvent is the struct representing all the event data.
 type ProcEvent struct {
-	What        uint32
+	What        EventType
 	CPU         uint32
 	TimestampNs uint64
 	EventData   EventData
