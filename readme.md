@@ -7,6 +7,8 @@ It's dead simple, and built on top of @mdlayher's [gloang netlink library](https
 The Proc Connector interface is mildly obscure, and you can read more [here](http://netsplit.com/the-proc-connector-and-socket-filters)
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/fearful-symmetry/garlic)](https://goreportcard.com/report/github.com/fearful-symmetry/garlic)
+
+[![CircleCI](https://circleci.com/gh/fearful-symmetry/garlic.svg?style=svg)](https://circleci.com/gh/fearful-symmetry/garlic)
 ## Tutorial
 
 ```go
