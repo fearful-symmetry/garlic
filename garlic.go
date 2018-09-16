@@ -86,13 +86,14 @@ func isAck(data []byte) bool {
 
 //ClosePCN closes the netlink  connection
 func (c CnConn) ClosePCN() error {
-	return c.Close()
+	return c.c.Close()
 }
 
-//ReadPCN reads waits for a Proc connector event to come across the nl socket, returns an event struct
+//ReadPCN reads waits for a Proc connector event to come across the nl socket, and returns an event struct
+//This is a blocking operation
 func (c CnConn) ReadPCN() ([]ProcEvent, error) {
 
-	retMsg, err := c.Receive()
+	retMsg, err := c.c.Receive()
 	if err != nil {
 		return nil, fmt.Errorf("Receive error: %s", err)
 	}
@@ -129,7 +130,7 @@ func dialPCN() (*netlink.Conn, error) {
 	var connBody uint32 = ProcCnMcastListen
 	cnHdr := cnMsg{ID: cbHdr, Len: uint16(binary.Size(connBody))}
 
-	binHdr := cnHdr.MarshalBinaryAndBody(connBody)
+	binHdr := cnHdr.marshalBinaryAndBody(connBody)
 
 	reqMsg := netlink.Message{
 		Header: netlink.Header{
@@ -158,7 +159,8 @@ func dialPCN() (*netlink.Conn, error) {
 	return c, nil
 }
 
-//DialPCN connects to the proc connector socket
+//DialPCN connects to the proc connector socket, and returns a connection that will listens for all available event types:
+//None, Fork, Execm UID, GID, SID, Ptrace, Comm, Coredump and Exit
 func DialPCN() (CnConn, error) {
 
 	c, err := dialPCN()
@@ -167,7 +169,8 @@ func DialPCN() (CnConn, error) {
 
 }
 
-//DialPCNWithEvents is the same as DialPCN(), but with a filter that allows you select a particular proc event
+//DialPCNWithEvents is the same as DialPCN(), but with a filter that allows you select a particular proc event.
+//It uses bitmasks and PBF to filter for the given events
 func DialPCNWithEvents(events []EventType) (CnConn, error) {
 
 	c, err := dialPCN()

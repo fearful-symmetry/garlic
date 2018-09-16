@@ -23,6 +23,8 @@ These are the struct defs used in cn_proc.h
 */
 
 //EventData is an interface that encapsulates the union type used in cn_proc
+//The PID and TGID fields are the only attributes shared by all the event types.
+//Go get all the other fields, cast to a concrete type
 type EventData interface {
 	Pid() uint32
 

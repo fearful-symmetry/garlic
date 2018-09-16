@@ -9,7 +9,7 @@ import (
 
 //CnConn contains the connection to the proc connector socket
 type CnConn struct {
-	*netlink.Conn
+	c *netlink.Conn
 }
 
 //Preserve a lot of the const/enums from cn_proc.h for the sake of documentation
@@ -22,10 +22,10 @@ const ( //proc_cn_mcast_op
 	ProcCnMcastIgnore = iota
 )
 
-//CnIdxProc is the Id used for proc/connector
+//CnIdxProc is the Id used for proc/connector, and is a unique identifier which is used for message routing and must be registered in connector.h for in-kernel usage.
 const CnIdxProc = 0x1
 
-//CnValProc is the corrisponding value used by chID
+//CnValProc is the corrisponding value used by chID,  and is a unique identifier which is used for message routing and must be registered in connector.h for in-kernel usage.
 const CnValProc = 0x1
 
 //Various message structs from connector.h
@@ -52,7 +52,7 @@ type cnMsg struct {
 var cnMsgLen = binary.Size(cnMsg{})
 
 //MarshallBinary converts the entire struct into a slice, along with the proc_cn_mcast_op body
-func (hdr cnMsg) MarshalBinaryAndBody(body uint32) []byte {
+func (hdr cnMsg) marshalBinaryAndBody(body uint32) []byte {
 
 	bytes := make([]byte, binary.Size(hdr)+binary.Size(body))
 	nlenc.PutUint32(bytes[0:4], hdr.ID.Idx)
@@ -100,10 +100,10 @@ func unmarshalProcEventHdr(data []byte) procEventHdr {
 	return hdr
 }
 
-//EventType represents the possible event types we can get back from the connector
+//EventType is a type for carrying around the valid list of event types
 type EventType uint32
 
-//from cn_proc.h
+//These types are taken from cn_proc.h, and represent all the known types that the proc connector will notify on
 const (
 
 	//ProcEventNone is only used for ACK events
@@ -128,7 +128,7 @@ const (
 	ProcEventExit EventType = 0x80000000
 )
 
-//ProcEvent is the struct representing all the event data.
+//ProcEvent is the struct representing all the event data that comes across the wire, in parsed form.
 type ProcEvent struct {
 	What        EventType
 	CPU         uint32
