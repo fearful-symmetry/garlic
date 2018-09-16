@@ -13,11 +13,6 @@ import (
 	"github.com/mdlayher/netlink"
 )
 
-//CnConn contains the connection to the proc connector socket
-type CnConn struct {
-	*netlink.Conn
-}
-
 //parse and handle the event Interface
 func getEvent(hdr procEventHdr, data []byte) (EventData, error) {
 	switch hdr.What {
@@ -116,8 +111,7 @@ func (c CnConn) ReadPCN() ([]ProcEvent, error) {
 	return evList, nil
 }
 
-//DialPCN connects to the proc connector socket
-func DialPCN() (CnConn, error) {
+func dialPCN() (*netlink.Conn, error) {
 
 	//DialPCN Config
 	cCfg := netlink.Config{Groups: 0x1}
@@ -127,7 +121,7 @@ func DialPCN() (CnConn, error) {
 	//fmt.Println("Finished dial.")
 
 	if err != nil {
-		return CnConn{}, fmt.Errorf("Error in netlink: %s", err)
+		return &netlink.Conn{}, fmt.Errorf("Error in netlink: %s", err)
 	}
 
 	//setup process connector hdr
@@ -147,18 +141,43 @@ func DialPCN() (CnConn, error) {
 	//Send request message
 	msgs, err := c.Send(reqMsg)
 	if err != nil {
-		return CnConn{}, fmt.Errorf("Execute error: %s\n %#v", err, msgs)
+		return &netlink.Conn{}, fmt.Errorf("Execute error: %s\n %#v", err, msgs)
 	}
 
 	//Wait for our ack msg
 	ack, err := c.Receive()
 	if err != nil {
-		return CnConn{}, err
+		return &netlink.Conn{}, fmt.Errorf("could not recv ack: %v", err)
 	}
 
 	//check to make sure out ack valid
 	if !isAck(ack[0].Data) {
-		return CnConn{}, fmt.Errorf("Packet not a valid ACK: %+v", ack)
+		return &netlink.Conn{}, fmt.Errorf("Packet not a valid ACK: %+v", ack)
+	}
+
+	return c, nil
+}
+
+//DialPCN connects to the proc connector socket
+func DialPCN() (CnConn, error) {
+
+	c, err := dialPCN()
+
+	return CnConn{c}, err
+
+}
+
+//DialPCNWithEvents is the same as DialPCN(), but with a filter that allows you select a particular proc event
+func DialPCNWithEvents(events []EventType) (CnConn, error) {
+
+	c, err := dialPCN()
+	filters, err := loadBPF(events)
+	if err != nil {
+		return CnConn{}, err
+	}
+	err = c.SetBPF(filters)
+	if err != nil {
+		return CnConn{}, err
 	}
 
 	return CnConn{c}, nil

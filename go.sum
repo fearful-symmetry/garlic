@@ -1,5 +1,15 @@
+github.com/google/go-cmp v0.2.0 h1:+dTQ8DZQJz0Mb/HjFlkptS1FeQ4cWSnN941F8aEG4SQ=
+github.com/google/go-cmp v0.2.0/go.mod h1:oXzfMopK8JAjlY9xF4vHSVASa0yLyX7SntLO5aqRK0M=
+github.com/mdlayher/netlink v0.0.0-20170608195358-225b7dcea4d3f470298e96657623b7a3f15abb1b h1:lSxmH7SuKMcuP30O+SKcVw/ze1UBO6Cejtj2TiLGX1g=
+github.com/mdlayher/netlink v0.0.0-20170608195358-225b7dcea4d3f470298e96657623b7a3f15abb1b/go.mod h1:a3TlQHkJH2m32RF224Z7LhD5N4mpyR8eUbCoYHywrwg=
 github.com/mdlayher/netlink v0.0.0-20170608195358-442316be22fd h1:57IeJ4Qkp1impvvDN1hllf81b0g7VwwEw3d2k5S20K8=
 github.com/mdlayher/netlink v0.0.0-20170608195358-442316be22fd/go.mod h1:a3TlQHkJH2m32RF224Z7LhD5N4mpyR8eUbCoYHywrwg=
+github.com/mdlayher/netlink v0.0.0-20170608195358-82077d593cd599c082317ceb5cfb22ee3fbc75ea h1:iI4voGz5++yXex5ljxzMNTnVR+qTauYLT76OrmVHel4=
+github.com/mdlayher/netlink v0.0.0-20170608195358-82077d593cd599c082317ceb5cfb22ee3fbc75ea/go.mod h1:a3TlQHkJH2m32RF224Z7LhD5N4mpyR8eUbCoYHywrwg=
+github.com/mdlayher/netlink v0.0.0-20180907175839-1a04d4bdad4c h1:Jp0oUJvp7Q1wX4GU386QIjwDnF2S3w3CEAhcjdZ4ppM=
+github.com/mdlayher/netlink v0.0.0-20180907175839-1a04d4bdad4c/go.mod h1:a3TlQHkJH2m32RF224Z7LhD5N4mpyR8eUbCoYHywrwg=
+github.com/mdlayher/netlink v0.0.0-20180912140650-18e318c2e5d1 h1:pDJgDg70my00+GUR5Hu+tVnd939Z5eR/DGXNQqCCO74=
+github.com/mdlayher/netlink v0.0.0-20180912140650-18e318c2e5d1/go.mod h1:a3TlQHkJH2m32RF224Z7LhD5N4mpyR8eUbCoYHywrwg=
 golang.org/x/net v0.0.0-20170809000501-1c05540f6879 h1:0rFa7EaCGdQPmZVbo9F7MNF65b8dyzS6EUnXjs9Cllk=
 golang.org/x/net v0.0.0-20170809000501-1c05540f6879/go.mod h1:mL1N/T3taQHkDXs73rZJwtUhF3w3ftmwwsq0BUmARs4=
 golang.org/x/sys v0.0.0-20170809190605-e42485b6e20a h1:qz9fUs58lV7lIbnkgEzLALJfXLEJuPUlUmrPOLST4bE=

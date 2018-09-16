@@ -22,6 +22,13 @@ These are the struct defs used in cn_proc.h
 
 */
 
+//EventData is an interface that encapsulates the union type used in cn_proc
+type EventData interface {
+	Pid() uint32
+
+	Tgid() uint32
+}
+
 //Fork is the event for process forks
 type Fork struct {
 	ParentPid  uint32

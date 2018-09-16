@@ -13,7 +13,7 @@ The Proc Connector interface is mildly obscure, and you can read more [here](htt
 ```go
 //Open a connection to the local Proc connector instance
 //This requires root.
-cn, err := PCNDial()
+cn, err := DialPCN()
 	if err != nil {
 		log.Fatalf("%s", err)
 	}
@@ -27,6 +27,13 @@ for {
     }
 	fmt.Printf("%#v\n", data)
 }
+
+//You can also filter by a list of events
+cn, err := DialPCNWithEvents([]EventType{ProcEventGID, ProcEventExit})
+	if err != nil {
+		log.Fatalf("%s", err)
+	}
+
 ```
 
 ## Why?

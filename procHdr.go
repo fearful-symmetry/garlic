@@ -3,8 +3,14 @@ package garlic
 import (
 	"encoding/binary"
 
+	"github.com/mdlayher/netlink"
 	"github.com/mdlayher/netlink/nlenc"
 )
+
+//CnConn contains the connection to the proc connector socket
+type CnConn struct {
+	*netlink.Conn
+}
 
 //Preserve a lot of the const/enums from cn_proc.h for the sake of documentation
 //No one wants see 0x1 everywhere
@@ -128,11 +134,4 @@ type ProcEvent struct {
 	CPU         uint32
 	TimestampNs uint64
 	EventData   EventData
-}
-
-//EventData is an interface that encapsulates the union type used in cn_proc
-type EventData interface {
-	Pid() uint32
-
-	Tgid() uint32
 }

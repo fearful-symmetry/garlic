@@ -1,0 +1,47 @@
+package garlic
+
+import (
+	"encoding/binary"
+	"fmt"
+
+	"github.com/mdlayher/netlink/nlenc"
+	"golang.org/x/net/bpf"
+)
+
+func loadBPF(filters []EventType) ([]bpf.RawInstruction, error) {
+
+	fmt.Printf("Filter List: %#v\n", filters)
+	var totals uint32
+	for _, toFilter := range filters {
+		totals = totals | uint32(toFilter)
+	}
+
+	fmt.Printf("Filter total: 0x%x\n", totals)
+	fmt.Printf("Swaped: %#v", swap(totals))
+	inst, err := bpf.Assemble([]bpf.Instruction{
+		//bpf.LoadAbsolute{Off: (20 + 19), Size: 4},
+		bpf.LoadAbsolute{Off: (16 + 20), Size: 4},
+
+		bpf.JumpIf{Cond: bpf.JumpBitsNotSet, Val: swap(totals), SkipTrue: 1},
+		//bpf.JumpIf{Cond: bpf.JumpNotEqual, Val: totals, SkipTrue: 1},
+
+		bpf.RetConstant{Val: 4096},
+		bpf.RetConstant{Val: 0},
+	})
+
+	return inst, err
+}
+
+//if needed, change the endian-ness before we file the bitmask off to bpf
+func swap(val uint32) uint32 {
+
+	if nlenc.NativeEndian() == binary.LittleEndian {
+		return (val << 24) |
+			((val << 8) & 0x00ff0000) |
+			((val >> 8) & 0x0000ff00) |
+			((val >> 24) & 0x000000ff)
+	}
+
+	return val
+
+}
