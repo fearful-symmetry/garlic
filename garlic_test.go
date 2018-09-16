@@ -22,23 +22,51 @@ var testPayload = []uint8{0x1, 0x0, 0x0, 0x0,
 	0x0, 0x0, 0x0, 0x0, 0x0,
 	0x0, 0x0, 0x0}
 
-// //This test requires root. You've been warned.
+//These tests requires root. You've been warned.
 // func TestDial(t *testing.T) {
 // 	cn, err := DialPCN()
+// 	if err != nil {
+// 		t.Fatalf("dial error: %s", err)
+// 	}
+
+// 	for {
+// 		data, err := cn.ReadPCN()
+// 		//fmt.Printf("%#v\n", cn.Conn)
+// 		if err != nil {
+// 			t.Errorf("Test fail: %s", err)
+// 		}
+// 		fmt.Printf("%#v\n", data)
+// 	}
+// 	//fmt.Printf("%#v\n", data)
+
+// 	cn.ClosePCN()
+// }
+
+// func TestDialFilter(t *testing.T) {
+// 	cn, err := DialPCNWithEvents([]EventType{ProcEventGID, ProcEventExit})
+// 	//cn, err := DialPCNWithEvent(ProcEventSID)
 // 	if err != nil {
 // 		t.Fatalf("%s", err)
 // 	}
 
-// 	_, err = cn.ReadPCN()
-// 	//fmt.Printf("%#v\n", cn.Conn)
-// 	if err != nil {
-// 		t.Errorf("Test fail: %s", err)
+// 	for {
+// 		data, err := cn.ReadPCN()
+// 		//fmt.Printf("%#v\n", cn.Conn)
+// 		if err != nil {
+// 			t.Errorf("Test fail: %s", err)
+// 		}
+// 		fmt.Printf("%#v\n", data)
 // 	}
-// 	//fmt.Printf("%#v\n", data)
 
-// 	//fmt.Printf("%#v\n", data)
+// 	err = cn.RemoveBPF()
+// 	if err != nil {
+// 		t.Errorf("RemoveBPF: %s", err)
+// 	}
 
-// 	cn.ClosePCN()
+// 	err = cn.ClosePCN()
+// 	if err != nil {
+// 		t.Errorf("ClosePCN: %s", err)
+// 	}
 // }
 
 func TestParseCN(t *testing.T) {
