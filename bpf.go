@@ -16,15 +16,9 @@ func loadBPF(filters []EventType) ([]bpf.RawInstruction, error) {
 		totals = totals | uint32(toFilter)
 	}
 
-	fmt.Printf("Filter total: 0x%x\n", totals)
-	fmt.Printf("Swaped: %#v", swap(totals))
 	inst, err := bpf.Assemble([]bpf.Instruction{
-		//bpf.LoadAbsolute{Off: (20 + 19), Size: 4},
 		bpf.LoadAbsolute{Off: (16 + 20), Size: 4},
-
 		bpf.JumpIf{Cond: bpf.JumpBitsNotSet, Val: swap(totals), SkipTrue: 1},
-		//bpf.JumpIf{Cond: bpf.JumpNotEqual, Val: totals, SkipTrue: 1},
-
 		bpf.RetConstant{Val: 4096},
 		bpf.RetConstant{Val: 0},
 	})
