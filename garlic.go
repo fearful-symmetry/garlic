@@ -165,7 +165,7 @@ func DialPCN() (CnConn, error) {
 
 	c, err := dialPCN()
 
-	return CnConn{c}, err
+	return CnConn{c: c}, err
 
 }
 
@@ -183,6 +183,6 @@ func DialPCNWithEvents(events []EventType) (CnConn, error) {
 		return CnConn{}, err
 	}
 
-	return CnConn{c}, nil
+	return CnConn{c: c}, nil
 
 }
