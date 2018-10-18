@@ -9,6 +9,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"syscall"
+	"time"
 
 	"github.com/mdlayher/netlink"
 )
@@ -57,7 +58,7 @@ func getEvent(hdr procEventHdr, data []byte) (EventData, error) {
 	return Exit{}, fmt.Errorf("Unknown What: %x", hdr.What)
 }
 
-func parseCn(data []byte) (ProcEvent, error) {
+func (c CnConn) parseCn(data []byte) (ProcEvent, error) {
 
 	hdr := unmarshalProcEventHdr(data[cnMsgLen:])
 	//buf := bytes.NewBuffer(data[cnMsgLen+procEventHdrLen:])
@@ -67,7 +68,9 @@ func parseCn(data []byte) (ProcEvent, error) {
 		return ProcEvent{}, err
 	}
 
-	return ProcEvent{What: hdr.What, CPU: hdr.CPU, TimestampNs: hdr.Timestamp, EventData: ev}, nil
+	ts := time.Unix(0, int64(hdr.Timestamp)+(c.boottime*1000000000))
+
+	return ProcEvent{What: hdr.What, CPU: hdr.CPU, TimestampNs: ts, EventData: ev}, nil
 }
 
 //check to see if the packet is a valid ACK
@@ -101,7 +104,7 @@ func (c CnConn) ReadPCN() ([]ProcEvent, error) {
 	//I've never seen these underlying libs return more than one proc event, but lets not make assumptions
 	evList := make([]ProcEvent, len(retMsg))
 	for iter, value := range retMsg {
-		parsedEv, err := parseCn(value.Data)
+		parsedEv, err := c.parseCn(value.Data)
 		if err != nil {
 			return nil, fmt.Errorf("Bad parseCn: %s", err)
 		}
@@ -112,7 +115,7 @@ func (c CnConn) ReadPCN() ([]ProcEvent, error) {
 	return evList, nil
 }
 
-func dialPCN() (*netlink.Conn, error) {
+func dialPCN() (CnConn, error) {
 
 	//DialPCN Config
 	cCfg := netlink.Config{Groups: 0x1}
@@ -122,7 +125,7 @@ func dialPCN() (*netlink.Conn, error) {
 	//fmt.Println("Finished dial.")
 
 	if err != nil {
-		return &netlink.Conn{}, fmt.Errorf("Error in netlink: %s", err)
+		return CnConn{}, fmt.Errorf("Error in netlink: %s", err)
 	}
 
 	//setup process connector hdr
@@ -142,31 +145,34 @@ func dialPCN() (*netlink.Conn, error) {
 	//Send request message
 	msgs, err := c.Send(reqMsg)
 	if err != nil {
-		return &netlink.Conn{}, fmt.Errorf("Execute error: %s\n %#v", err, msgs)
+		return CnConn{}, fmt.Errorf("Execute error: %s\n %#v", err, msgs)
 	}
 
 	//Wait for our ack msg
 	ack, err := c.Receive()
 	if err != nil {
-		return &netlink.Conn{}, fmt.Errorf("could not recv ack: %v", err)
+		return CnConn{}, fmt.Errorf("could not recv ack: %v", err)
 	}
 
 	//check to make sure out ack valid
 	if !isAck(ack[0].Data) {
-		return &netlink.Conn{}, fmt.Errorf("Packet not a valid ACK: %+v", ack)
+		return CnConn{}, fmt.Errorf("Packet not a valid ACK: %+v", ack)
 	}
 
-	return c, nil
+	//get the system boot time to calculate the ktime timestamps
+	bt, err := getBoottime()
+	if err != nil {
+		return CnConn{}, err
+	}
+
+	return CnConn{c: c, boottime: bt}, nil
 }
 
 //DialPCN connects to the proc connector socket, and returns a connection that will listens for all available event types:
 //None, Fork, Execm UID, GID, SID, Ptrace, Comm, Coredump and Exit
 func DialPCN() (CnConn, error) {
 
-	c, err := dialPCN()
-
-	return CnConn{c: c}, err
-
+	return dialPCN()
 }
 
 //DialPCNWithEvents is the same as DialPCN(), but with a filter that allows you select a particular proc event.
@@ -174,15 +180,20 @@ func DialPCN() (CnConn, error) {
 func DialPCNWithEvents(events []EventType) (CnConn, error) {
 
 	c, err := dialPCN()
-	filters, err := loadBPF(events)
-	if err != nil {
-		return CnConn{}, err
-	}
-	err = c.SetBPF(filters)
 	if err != nil {
 		return CnConn{}, err
 	}
 
-	return CnConn{c: c}, nil
+	filters, err := loadBPF(events)
+	if err != nil {
+		return CnConn{}, err
+	}
+
+	err = c.c.SetBPF(filters)
+	if err != nil {
+		return CnConn{}, err
+	}
+
+	return c, nil
 
 }

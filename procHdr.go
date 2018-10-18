@@ -2,6 +2,7 @@ package garlic
 
 import (
 	"encoding/binary"
+	"time"
 
 	"github.com/mdlayher/netlink"
 	"github.com/mdlayher/netlink/nlenc"
@@ -9,7 +10,8 @@ import (
 
 //CnConn contains the connection to the proc connector socket
 type CnConn struct {
-	c *netlink.Conn
+	c        *netlink.Conn
+	boottime int64
 }
 
 //Preserve a lot of the const/enums from cn_proc.h for the sake of documentation
@@ -132,6 +134,6 @@ const (
 type ProcEvent struct {
 	What        EventType
 	CPU         uint32
-	TimestampNs uint64
+	TimestampNs time.Time
 	EventData   EventData
 }

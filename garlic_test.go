@@ -2,6 +2,7 @@ package garlic
 
 import (
 	"testing"
+	"time"
 
 	"reflect"
 )
@@ -73,13 +74,15 @@ func TestParseCN(t *testing.T) {
 
 	validOut := ProcEvent{What: 0x80000000,
 		CPU:         0xb,
-		TimestampNs: 0x272aaff601311,
+		TimestampNs: time.Unix(0, 0x272aaff601311),
 		EventData: Exit{ProcessPid: 0x6999,
 			ProcessTgid: 0x2ddd,
 			ExitCode:    0x0,
 			ExitSignal:  0xffffffff}}
 
-	ev, err := parseCn(testPayload)
+	connector := CnConn{c: nil, boottime: 0}
+
+	ev, err := connector.parseCn(testPayload)
 	if err != nil {
 		t.Fatalf("Error parsing payload: %s", err)
 	}
