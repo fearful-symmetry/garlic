@@ -135,5 +135,5 @@ type ProcEvent struct {
 	What      EventType `json:"event"`
 	CPU       uint32    `json:"cpu"`
 	Timestamp time.Time `json:"timestamp"`
-	EventData EventData `'json:"event"`
+	EventData EventData `json:"event"`
 }
