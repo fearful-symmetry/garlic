@@ -6,6 +6,7 @@ GArLIC: GolAng LInux Connector: Linux Processor Connector library
 */
 
 import (
+	"bytes"
 	"encoding/binary"
 	"fmt"
 	"syscall"
@@ -43,7 +44,8 @@ func getEvent(hdr procEventHdr, data []byte) (EventData, error) {
 	case ProcEventComm:
 		ev := Comm{}
 		ev.ProcessPid, ev.ProcessTgid = return2Uint32(data)
-		copy(ev.Comm[:], data[8:])
+		ev.Comm = string(data[8:bytes.IndexByte(data[8:], 0)])
+		//copy(ev.Comm[:], data[8:])
 		return ev, nil
 	case ProcEventCoredump:
 		ev := Coredump{}
@@ -70,7 +72,7 @@ func (c CnConn) parseCn(data []byte) (ProcEvent, error) {
 
 	ts := time.Unix(0, int64(hdr.Timestamp)+(c.boottime*1000000000))
 
-	return ProcEvent{What: hdr.What, CPU: hdr.CPU, TimestampNs: ts, EventData: ev}, nil
+	return ProcEvent{What: hdr.What, CPU: hdr.CPU, Timestamp: ts, EventData: ev}, nil
 }
 
 //check to see if the packet is a valid ACK

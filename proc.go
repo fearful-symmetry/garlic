@@ -33,10 +33,10 @@ type EventData interface {
 
 //Fork is the event for process forks
 type Fork struct {
-	ParentPid  uint32
-	ParentTgid uint32
-	ChildPid   uint32
-	ChildTgid  uint32
+	ParentPid  uint32 `json:"parent_pid"`
+	ParentTgid uint32 `josn:"parent_tgid"`
+	ChildPid   uint32 `json:"child_pid"`
+	ChildTgid  uint32 `json:"child_tgid"`
 }
 
 //Pid returns the event Process ID
@@ -51,8 +51,8 @@ func (f Fork) Tgid() uint32 {
 
 //Exec is the event for process exec()s
 type Exec struct {
-	ProcessPid  uint32
-	ProcessTgid uint32
+	ProcessPid  uint32 `json:"proces_pid"`
+	ProcessTgid uint32 `json:"process_tgid"`
 }
 
 //Pid returns the event Process ID
@@ -71,10 +71,10 @@ func (e Exec) Tgid() uint32 {
 //So we're going to rename the vars and just use two.
 //Consumers should use `what` to distinguish between the two.
 type ID struct {
-	ProcessPid  uint32
-	ProcessTgid uint32
-	RealID      uint32
-	EffectiveID uint32
+	ProcessPid  uint32 `json:"process_pid"`
+	ProcessTgid uint32 `json:"process_tgid"`
+	RealID      uint32 `json:"real_id"`
+	EffectiveID uint32 `json:"effective_id"`
 }
 
 //Pid returns the event Process ID
@@ -89,8 +89,8 @@ func (i ID) Tgid() uint32 {
 
 //Sid is the event for Session ID changes
 type Sid struct {
-	ProcessPid  uint32
-	ProcessTgid uint32
+	ProcessPid  uint32 `json:"process_pid"`
+	ProcessTgid uint32 `json:"process_tgid"`
 }
 
 //Pid returns the event process  ID
@@ -105,10 +105,10 @@ func (s Sid) Tgid() uint32 {
 
 //Ptrace is the event for ptrace events
 type Ptrace struct {
-	ProcessPid  uint32
-	ProcessTgid uint32
-	TracerPid   uint32
-	TracerTgid  uint32
+	ProcessPid  uint32 `json:"process_pid"`
+	ProcessTgid uint32 `json:"process_tgid"`
+	TracerPid   uint32 `json:"tracrer_pid"`
+	TracerTgid  uint32 `json:"tracer_tgid"`
 }
 
 //Pid returns the event Process ID
@@ -123,9 +123,9 @@ func (p Ptrace) Tgid() uint32 {
 
 //Comm represents changes to the command name, /proc/$PID/comm
 type Comm struct {
-	ProcessPid  uint32
-	ProcessTgid uint32
-	Comm        [16]byte
+	ProcessPid  uint32 `json:"process_pid"`
+	ProcessTgid uint32 `json:"process_tgid"`
+	Comm        string `json:"command"`
 }
 
 //Pid returns the event Process ID
@@ -140,8 +140,8 @@ func (c Comm) Tgid() uint32 {
 
 //Coredump is the event for...core dumps
 type Coredump struct {
-	ProcessPid  uint32
-	ProcessTgid uint32
+	ProcessPid  uint32 `json:"process_pid"`
+	ProcessTgid uint32 `json:"process_tgid"`
 }
 
 //Pid returns the event Process ID
@@ -156,10 +156,10 @@ func (c Coredump) Tgid() uint32 {
 
 //Exit is the event for exit()
 type Exit struct {
-	ProcessPid  uint32
-	ProcessTgid uint32
-	ExitCode    uint32
-	ExitSignal  uint32
+	ProcessPid  uint32 `json:"process_pid"`
+	ProcessTgid uint32 `json:"process_tgid"`
+	ExitCode    uint32 `json:"exit_code"`
+	ExitSignal  uint32 `json:"exit_signal"`
 }
 
 //Pid returns the event Process ID

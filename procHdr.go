@@ -132,8 +132,8 @@ const (
 
 //ProcEvent is the struct representing all the event data that comes across the wire, in parsed form.
 type ProcEvent struct {
-	What        EventType
-	CPU         uint32
-	TimestampNs time.Time
-	EventData   EventData
+	What      EventType `json:"event"`
+	CPU       uint32    `json:"cpu"`
+	Timestamp time.Time `json:"timestamp"`
+	EventData EventData `'json:"event"`
 }
