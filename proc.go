@@ -84,7 +84,7 @@ func (f Fork) Tgid() uint32 {
 //Exec is the event for process exec()s
 type Exec struct {
 	ProcessPid  uint32 `json:"proces_pid" pretty:"Process PID"`
-	ProcessTgid uint32 `json:"process_tgid" pretty: "Process TGID"`
+	ProcessTgid uint32 `json:"process_tgid" pretty:"Process TGID"`
 }
 
 //Pid returns the event Process ID
@@ -105,8 +105,8 @@ func (e Exec) Tgid() uint32 {
 type ID struct {
 	ProcessPid  uint32 `json:"process_pid" pretty:"Process PID"`
 	ProcessTgid uint32 `json:"process_tgid" pretty:"Process TGID"`
-	RealID      uint32 `json:"real_id" pretty: "Real ID"`
-	EffectiveID uint32 `json:"effective_id" pretty: "Effective ID"`
+	RealID      uint32 `json:"real_id" pretty:"Real ID"`
+	EffectiveID uint32 `json:"effective_id" pretty:"Effective ID"`
 }
 
 //Pid returns the event Process ID
@@ -121,8 +121,8 @@ func (i ID) Tgid() uint32 {
 
 //Sid is the event for Session ID changes
 type Sid struct {
-	ProcessPid  uint32 `json:"process_pid" pretty: "Process PID"`
-	ProcessTgid uint32 `json:"process_tgid" pretty: "Process TGID"`
+	ProcessPid  uint32 `json:"process_pid" pretty:"Process PID"`
+	ProcessTgid uint32 `json:"process_tgid" pretty:"Process TGID"`
 }
 
 //Pid returns the event process  ID
@@ -189,7 +189,7 @@ func (c Coredump) Tgid() uint32 {
 //Exit is the event for exit()
 type Exit struct {
 	ProcessPid  uint32 `json:"process_pid" pretty:"Process PID"`
-	ProcessTgid uint32 `json:"process_tgid" pretty: "Process TGID"`
+	ProcessTgid uint32 `json:"process_tgid" pretty:"Process TGID"`
 	ExitCode    uint32 `json:"exit_code" pretty:"Exit Code"`
 	ExitSignal  uint32 `json:"exit_signal" pretty:"Exit Signal"`
 }
