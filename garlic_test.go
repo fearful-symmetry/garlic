@@ -73,8 +73,9 @@ var testPayload = []uint8{0x1, 0x0, 0x0, 0x0,
 func TestParseCN(t *testing.T) {
 
 	validOut := ProcEvent{What: 0x80000000,
-		CPU:       0xb,
-		Timestamp: time.Unix(0, 0x272aaff601311),
+		CPU:        0xb,
+		Timestamp:  time.Unix(0, 0x272aaff601311),
+		WhatString: "exit",
 		EventData: Exit{ProcessPid: 0x6999,
 			ProcessTgid: 0x2ddd,
 			ExitCode:    0x0,

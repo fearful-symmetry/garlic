@@ -72,7 +72,7 @@ func (c CnConn) parseCn(data []byte) (ProcEvent, error) {
 
 	ts := time.Unix(0, int64(hdr.Timestamp)+(c.boottime*1000000000))
 
-	return ProcEvent{What: hdr.What, CPU: hdr.CPU, Timestamp: ts, EventData: ev}, nil
+	return ProcEvent{What: hdr.What, CPU: hdr.CPU, Timestamp: ts, EventData: ev, WhatString: evtType2Str(hdr.What)}, nil
 }
 
 //check to see if the packet is a valid ACK
