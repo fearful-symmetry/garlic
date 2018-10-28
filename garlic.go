@@ -171,14 +171,14 @@ func dialPCN() (CnConn, error) {
 }
 
 //DialPCN connects to the proc connector socket, and returns a connection that will listens for all available event types:
-//None, Fork, Execm UID, GID, SID, Ptrace, Comm, Coredump and Exit
+//None, Fork, Execm UID, GID, SID, Ptrace, Comm, Coredump and Exit. The operation requires root.
 func DialPCN() (CnConn, error) {
 
 	return dialPCN()
 }
 
 //DialPCNWithEvents is the same as DialPCN(), but with a filter that allows you select a particular proc event.
-//It uses bitmasks and PBF to filter for the given events
+//It uses bitmasks and PBF to filter for the given events. This operation requires root.
 func DialPCNWithEvents(events []EventType) (CnConn, error) {
 
 	c, err := dialPCN()

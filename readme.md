@@ -21,7 +21,7 @@ cn, err := DialPCN()
 
 //Read in events
 for {
-    data, err = cn.ReadPCN()
+    data, err := cn.ReadPCN()
 
 	if err != nil {
 		log.Errorf("Read fail: %s", err)

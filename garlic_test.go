@@ -1,6 +1,7 @@
 package garlic
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -69,6 +70,47 @@ var testPayload = []uint8{0x1, 0x0, 0x0, 0x0,
 // 		t.Errorf("ClosePCN: %s", err)
 // 	}
 // }
+
+/*
+This example demonstrates garlic in the most simplistic use case: connect and read
+Proc connector requres root, and the underlying scoket returns an array from netlink
+*/
+func ExampleDialPCN() {
+	cn, err := DialPCN()
+	if err != nil {
+		fmt.Printf("%s", err)
+	}
+
+	//Read in events
+	for {
+		data, err := cn.ReadPCN()
+
+		if err != nil {
+			fmt.Printf("Read fail: %s", err)
+		}
+		fmt.Printf("%#v\n", data)
+	}
+}
+
+/*
+This demonstrates reading a specific array of selected events
+*/
+func ExampleDialPCNWithEvents() {
+	cn, err := DialPCNWithEvents([]EventType{ProcEventGID, ProcEventExit})
+	if err != nil {
+		fmt.Printf("%s", err)
+	}
+
+	//Read in events
+	for {
+		data, err := cn.ReadPCN()
+
+		if err != nil {
+			fmt.Printf("Read fail: %s", err)
+		}
+		fmt.Printf("%#v\n", data)
+	}
+}
 
 func TestParseCN(t *testing.T) {
 
