@@ -130,6 +130,10 @@ func dialPCN() (CnConn, error) {
 		return CnConn{}, fmt.Errorf("Error in netlink: %s", err)
 	}
 
+	// Enable NoENOBUFS option so that packets will be dropped instead of
+	// returning an error that will terminate the program.
+	c.SetOption(netlink.NoENOBUFS, true)
+
 	//setup process connector hdr
 	cbHdr := cbID{Idx: CnIdxProc, Val: CnValProc}
 	var connBody uint32 = ProcCnMcastListen
